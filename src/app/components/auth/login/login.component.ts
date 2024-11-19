@@ -22,7 +22,7 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   validateForm(): boolean {
     this.formErrors = {};
@@ -55,7 +55,7 @@ export class LoginComponent {
             if (user) {
               this.router.navigate(['/products']);
             } else {
-              this.errorMessage = 'Email o contraseña incorrectos';
+              this.errorMessage = 'Credenciales incorrectas. Si es la primera vez, recuerda que puedes acceder como administrador con usuario: admin y contraseña: admin';
             }
           },
           error: (error) => {

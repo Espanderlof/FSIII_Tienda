@@ -33,7 +33,7 @@ export class AuthService {
         id: 1,
         nombre: 'Administrador',
         apellido: 'Sistema',
-        email: 'admin',
+        email: 'admin@tienda.cl',
         password: 'admin',
         direccion: 'Dirección Administrativa',
         telefono: '123456789',
@@ -70,7 +70,7 @@ export class AuthService {
 
   register(user: Omit<User, 'id' | 'fechaCreacion' | 'ultimaActualizacion' | 'role'>): Observable<User> {
     const users = this.getLocalStorage('users') || [];
-    
+
     // Verificar si el email ya existe
     if (users.some((u: User) => u.email === user.email)) {
       throw new Error('El email ya está registrado');
@@ -92,12 +92,12 @@ export class AuthService {
   login(email: string, password: string): Observable<User | null> {
     const users = this.getLocalStorage('users') || [];
     const user = users.find((u: User) => u.email === email && u.password === password);
-    
+
     if (user) {
       this.setLocalStorage('currentUser', user);
       this.currentUserSubject.next(user);
     }
-    
+
     return of(user || null);
   }
 
@@ -109,7 +109,7 @@ export class AuthService {
   updateProfile(user: User): Observable<User> {
     const users = this.getLocalStorage('users') || [];
     const index = users.findIndex((u: User) => u.id === user.id);
-    
+
     if (index !== -1) {
       users[index] = {
         ...user,
@@ -119,20 +119,24 @@ export class AuthService {
       this.setLocalStorage('currentUser', users[index]);
       this.currentUserSubject.next(users[index]);
     }
-    
+
     return of(users[index]);
   }
 
   resetPassword(email: string): Observable<boolean> {
     const users = this.getLocalStorage('users') || [];
     const userIndex = users.findIndex((u: User) => u.email === email);
-    
+
     if (userIndex !== -1) {
       users[userIndex].password = '123456';
       this.setLocalStorage('users', users);
       return of(true);
     }
-    
+
     return of(false);
+  }
+
+  public get currentUserValue(): User | null {
+    return this.currentUserSubject.value;
   }
 }

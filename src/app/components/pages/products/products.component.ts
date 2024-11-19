@@ -26,7 +26,7 @@ export class ProductsComponent {
       fechaCreacion: new Date(),
       imagenUrl: 'https://via.placeholder.com/300x200',
       nombre: 'AMD Ryzen 9 7950X',
-      precio: 450000,
+      precio: 789990,
       stock: 15,
       ultimaActualizacion: new Date()
     },
@@ -38,7 +38,7 @@ export class ProductsComponent {
       fechaCreacion: new Date(),
       imagenUrl: 'https://via.placeholder.com/300x200',
       nombre: 'NVIDIA RTX 4080',
-      precio: 900000,
+      precio: 1299990,
       stock: 8,
       ultimaActualizacion: new Date()
     },
@@ -50,7 +50,7 @@ export class ProductsComponent {
       fechaCreacion: new Date(),
       imagenUrl: 'https://via.placeholder.com/300x200',
       nombre: 'ASUS ROG Swift PG27AQN',
-      precio: 350000,
+      precio: 849990,
       stock: 12,
       ultimaActualizacion: new Date()
     },

@@ -94,4 +94,8 @@ export class CartService {
       });
     });
   }
+
+  public get currentCartValue(): Cart {
+    return this.cartSubject.value;
+  }
 }

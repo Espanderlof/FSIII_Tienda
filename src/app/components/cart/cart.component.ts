@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { CartItem } from '../../models/cart-item';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-cart',
@@ -16,7 +17,11 @@ export class CartComponent implements OnInit {
   cartItems: CartItem[] = [];
   total: number = 0;
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private OrderService: OrderService,
+    private Router: Router
+  ) { }
 
   ngOnInit(): void {
     this.cartService.cart$.subscribe(cart => {
@@ -52,5 +57,21 @@ export class CartComponent implements OnInit {
 
   clearCart(): void {
     this.cartService.clearCart();
+  }
+
+  checkout(): void {
+    try {
+      this.OrderService.createOrder().subscribe({
+        next: (order) => {
+          alert('Orden procesada correctamente');
+          this.Router.navigate(['/orders']);
+        },
+        error: (error) => {
+          alert('Error al procesar la orden');
+        }
+      });
+    } catch (error) {
+      alert('Error al procesar la orden');
+    }
   }
 }

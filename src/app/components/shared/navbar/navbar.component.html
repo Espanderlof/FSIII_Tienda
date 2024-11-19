@@ -25,6 +25,12 @@
                 </li>
                 }
                 <li class="nav-item">
+                    <a class="nav-link" routerLink="/orders">
+                        <i class="bi bi-list-check"></i>
+                        {{ user.role === 'ADMIN' ? 'Gestionar Órdenes' : 'Mis Órdenes' }}
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" routerLink="/profile">
                         <i class="bi bi-person-circle"></i> {{ user.nombre }}
                     </a>

@@ -6,6 +6,7 @@ import { ForgotPasswordComponent } from './components/auth/forgot-password/forgo
 import { ProfileComponent } from './components/auth/profile/profile.component';
 import { authGuard } from './guards/auth.guard';
 import { CartComponent } from './components/cart/cart.component';
+import { OrderListComponent } from './components/orders/order-list/order-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/products', pathMatch: 'full' },
@@ -14,5 +15,6 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
-  { path: 'cart', component: CartComponent, canActivate: [authGuard] }  
+  { path: 'cart', component: CartComponent, canActivate: [authGuard] },
+  { path: 'orders', component: OrderListComponent, canActivate: [authGuard] }
 ];
