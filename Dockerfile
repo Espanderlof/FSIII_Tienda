@@ -13,7 +13,7 @@ RUN npm install
 COPY . .
 
 # Construir la aplicación
-RUN npm run build
+RUN npm run build --prod
 
 # Etapa de producción
 FROM nginx:alpine
@@ -25,11 +25,8 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY --from=builder /app/dist/tienda-web/browser/* /usr/share/nginx/html/
 COPY --from=builder /app/public /usr/share/nginx/html
 
-# Crear directorio para fuentes
-RUN mkdir -p /usr/share/nginx/html/assets/fonts
-
-# Copiar archivos de fuentes de Bootstrap Icons
-COPY --from=builder /app/node_modules/bootstrap-icons/font/fonts/* /usr/share/nginx/html/assets/fonts/
+# Crear directorio para assets si es necesario
+RUN mkdir -p /usr/share/nginx/html/assets
 
 # Copiar la configuración de nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf

@@ -1,8 +1,9 @@
 # FSIII_Tienda
 FSIII - SUMATIVA - Angular
 
-# Construir la imagen
-docker build -t tienda-web .
+# Angular
+ng serve
 
-# Ejecutar el contenedor
+# Dockerfile
+docker build -t tienda-web .
 docker run --name tienda-web -p 8080:80 tienda-web
