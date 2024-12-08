@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { Order } from '../../../models/order';
 import { OrderService } from '../../../services/order.service';
 import { AuthService } from '../../../services/auth.service';
@@ -8,7 +7,7 @@ import { AuthService } from '../../../services/auth.service';
 @Component({
   selector: 'app-order-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
 })
