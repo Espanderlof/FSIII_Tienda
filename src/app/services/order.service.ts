@@ -1,24 +1,35 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { Order, OrderItem } from '../models/order';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Order } from '../models/order';
 import { CartService } from './cart.service';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  private orders: Order[] = [];
-  private ordersSubject = new BehaviorSubject<Order[]>([]);
+  private http = inject(HttpClient);
   private cartService = inject(CartService);
   private authService = inject(AuthService);
 
+  private ordersSubject = new BehaviorSubject<Order[]>([]);
+  private apiUrl = environment.apis.ordenes.baseUrl;
+
   constructor() {
-    // Cargar órdenes del localStorage
-    const savedOrders = localStorage.getItem('orders');
-    if (savedOrders) {
-      this.orders = JSON.parse(savedOrders);
-      this.ordersSubject.next(this.orders);
+    this.loadOrders();
+  }
+
+  private loadOrders(): void {
+    const user = this.authService.currentUserValue;
+    if (user) {
+      if (user.role === 'ADMIN') {
+        this.getOrders().subscribe(orders => this.ordersSubject.next(orders));
+      } else {
+        this.getUserOrders(user.id).subscribe(orders => this.ordersSubject.next(orders));
+      }
     }
   }
 
@@ -30,54 +41,40 @@ export class OrderService {
       throw new Error('No hay usuario o carrito');
     }
 
-    const newOrder: Order = {
-      id: this.orders.length + 1,
+    const orderData = {
       userId: currentUser.id,
       userName: `${currentUser.nombre} ${currentUser.apellido}`,
-      items: cart.items.map((item: { product: any; quantity: number; subtotal: number; }) => ({
+      items: cart.items.map(item => ({
         productId: item.product.id,
         productName: item.product.nombre,
         quantity: item.quantity,
         price: item.product.precio,
         subtotal: item.subtotal
       })),
-      total: cart.total,
-      status: 'PENDIENTE',
-      createdAt: new Date(),
-      updatedAt: new Date()
+      total: cart.total
     };
 
-    this.orders.push(newOrder);
-    this.saveOrders();
-    this.cartService.clearCart();
-
-    return of(newOrder);
+    return this.http.post<Order>(`${this.apiUrl}/${environment.apis.ordenes.endpoints.base}`, orderData)
+      .pipe(
+        tap(() => {
+          this.cartService.clearCart(); // Limpia el carrito después de crear la orden exitosamente
+        })
+      );
   }
 
   getOrders(): Observable<Order[]> {
-    return this.ordersSubject.asObservable();
+    return this.http.get<Order[]>(`${this.apiUrl}/${environment.apis.ordenes.endpoints.base}`);
   }
 
   getUserOrders(userId: number): Observable<Order[]> {
-    return of(this.orders.filter(order => order.userId === userId));
+    return this.http.get<Order[]>(`${this.apiUrl}/${environment.apis.ordenes.endpoints.usuario}/${userId}`);
   }
 
   updateOrderStatus(orderId: number, status: 'PENDIENTE' | 'ENTREGADA' | 'CANCELADA'): Observable<Order> {
-    const orderIndex = this.orders.findIndex(o => o.id === orderId);
-    if (orderIndex !== -1) {
-      this.orders[orderIndex] = {
-        ...this.orders[orderIndex],
-        status,
-        updatedAt: new Date()
-      };
-      this.saveOrders();
-      return of(this.orders[orderIndex]);
-    }
-    throw new Error('Orden no encontrada');
+    return this.http.patch<Order>(
+      `${this.apiUrl}/${environment.apis.ordenes.endpoints.base}/${orderId}/status`,
+      { status }
+    );
   }
 
-  private saveOrders(): void {
-    localStorage.setItem('orders', JSON.stringify(this.orders));
-    this.ordersSubject.next(this.orders);
-  }
 }

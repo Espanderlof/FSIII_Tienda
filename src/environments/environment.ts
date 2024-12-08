@@ -22,6 +22,14 @@ export const environment = {
         buscar: 'productos/buscar',
         stock: 'productos/stock'
       }
+    },
+    ordenes: {
+      baseUrl: 'http://localhost:8083/api',
+      endpoints: {
+        base: 'orders',
+        usuario: 'orders/user',
+        estado: 'orders/status'
+      }
     }
   }
 };

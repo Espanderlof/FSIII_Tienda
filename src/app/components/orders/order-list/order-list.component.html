@@ -40,12 +40,16 @@
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-success btn-sm" (click)="updateStatus(order.id, 'ENTREGADA')"
-                                [disabled]="order.status === 'ENTREGADA'">
-                                <i class="bi bi-check-circle"></i> Entregar
+                                [disabled]="order.status === 'ENTREGADA' || processingOrderId === order.id">
+                                <span *ngIf="processingOrderId === order.id"
+                                    class="spinner-border spinner-border-sm me-1"></span>
+                                Entregar
                             </button>
                             <button class="btn btn-danger btn-sm" (click)="updateStatus(order.id, 'CANCELADA')"
-                                [disabled]="order.status === 'CANCELADA'">
-                                <i class="bi bi-x-circle"></i> Cancelar
+                                [disabled]="order.status === 'CANCELADA' || processingOrderId === order.id">
+                                <span *ngIf="processingOrderId === order.id"
+                                    class="spinner-border spinner-border-sm me-1"></span>
+                                Cancelar
                             </button>
                         </div>
                     </td>
