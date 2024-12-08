@@ -12,45 +12,50 @@
             </ul>
             <ul class="navbar-nav">
                 @if (authService.currentUser$ | async; as user) {
-                @if (user.role === 'CLIENTE') {
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/cart">
-                        <i class="bi bi-cart3"></i>
-                        @if (cartItemCount$ | async; as itemCount) {
-                        @if (itemCount > 0) {
-                        <span class="badge bg-danger">{{ itemCount }}</span>
-                        }
-                        }
-                    </a>
-                </li>
-                }
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/orders">
-                        <i class="bi bi-list-check"></i>
-                        {{ user.role === 'ADMIN' ? 'Gestionar Órdenes' : 'Mis Órdenes' }}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/profile">
-                        <i class="bi bi-person-circle"></i> {{ user.nombre }}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="javascript:void(0)" (click)="logout()">
-                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                    </a>
-                </li>
+                    @if (user.role === 'CLIENTE') {
+                        <li class="nav-item">
+                            <a class="nav-link" routerLink="/cart">
+                                <i class="bi bi-cart3"></i>
+                                @if (cartItemCount$ | async; as itemCount) {
+                                @if (itemCount > 0) {
+                                <span class="badge bg-danger">{{ itemCount }}</span>
+                                }
+                                }
+                            </a>
+                        </li>
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/orders">
+                            <i class="bi bi-list-check"></i>
+                            {{ user.role === 'ADMIN' ? 'Gestionar Órdenes' : 'Mis Órdenes' }}
+                        </a>
+                    </li>
+                    @if (user.role === 'ADMIN') {
+                        <li class="nav-item">
+                            <a class="nav-link" routerLink="/admin/products">Gestionar Productos</a>
+                        </li>
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/profile">
+                            <i class="bi bi-person-circle"></i> {{ user.nombre }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0)" (click)="logout()">
+                            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                        </a>
+                    </li>
                 } @else {
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/login">
-                        <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/register">
-                        <i class="bi bi-person-plus"></i> Registrarse
-                    </a>
-                </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/login">
+                            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/register">
+                            <i class="bi bi-person-plus"></i> Registrarse
+                        </a>
+                    </li>
                 }
             </ul>
         </div>

@@ -1,6 +1,6 @@
 export interface Product {
     id: number;
-    activo: number;  // 0 o 1
+    activo: boolean;
     categoria: string;
     descripcion: string;
     fechaCreacion: Date;

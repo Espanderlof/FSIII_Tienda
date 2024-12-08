@@ -20,7 +20,7 @@ export class ProductsComponent {
   products: Product[] = [
     {
       id: 1,
-      activo: 1,
+      activo: true,
       categoria: 'Procesadores',
       descripcion: 'Procesador AMD Ryzen 9 7950X, 16 núcleos, 32 hilos, velocidad base 4.5GHz, velocidad máxima 5.7GHz, caché L3 64MB',
       fechaCreacion: new Date(),
@@ -32,7 +32,7 @@ export class ProductsComponent {
     },
     {
       id: 2,
-      activo: 1,
+      activo: true,
       categoria: 'Tarjetas Gráficas',
       descripcion: 'NVIDIA GeForce RTX 4080 16GB GDDR6X, Ray Tracing en tiempo real, DLSS 3.0, ideal para gaming 4K',
       fechaCreacion: new Date(),
@@ -44,7 +44,7 @@ export class ProductsComponent {
     },
     {
       id: 3,
-      activo: 1,
+      activo: true,
       categoria: 'Monitores',
       descripcion: 'Monitor Gaming ASUS ROG Swift 27", 2K QHD (2560x1440), 240Hz, 1ms, G-SYNC, HDR 600',
       fechaCreacion: new Date(),
@@ -56,7 +56,7 @@ export class ProductsComponent {
     },
     {
       id: 4,
-      activo: 1,
+      activo: true,
       categoria: 'Almacenamiento',
       descripcion: 'SSD NVMe Samsung 990 PRO 2TB, PCIe 4.0, velocidades de lectura/escritura de hasta 7450/6900 MB/s',
       fechaCreacion: new Date(),
@@ -68,7 +68,7 @@ export class ProductsComponent {
     },
     {
       id: 5,
-      activo: 1,
+      activo: true,
       categoria: 'Memoria RAM',
       descripcion: 'Kit Memoria RAM G.Skill Trident Z5 RGB 32GB (2x16GB) DDR5 6000MHz CL30, Perfect para AMD Ryzen 7000',
       fechaCreacion: new Date(),

@@ -1,7 +1,10 @@
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
+import { catchError, map, tap, mergeMap } from 'rxjs/operators';
 import { User } from '../models/user';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,131 +12,96 @@ import { User } from '../models/user';
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
-  private platformId = inject(PLATFORM_ID);
+  private apiUrl = environment.apis.usuarios.baseUrl;
+  private endpoints = environment.apis.usuarios.endpoints;
 
-  constructor() {
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     if (isPlatformBrowser(this.platformId)) {
-      // Cargar usuario actual si existe
       const storedUser = localStorage.getItem('currentUser');
       if (storedUser) {
         this.currentUserSubject.next(JSON.parse(storedUser));
       }
-
-      // Inicializar usuario administrador si no existe
-      this.initializeAdminUser();
     }
   }
 
-  private initializeAdminUser(): void {
-    const users = this.getLocalStorage('users') || [];
-    const adminExists = users.some((user: User) => user.email === 'admin');
-
-    if (!adminExists) {
-      const adminUser: User = {
-        id: 1,
-        nombre: 'Administrador',
-        apellido: 'Sistema',
-        email: 'admin@tienda.cl',
-        password: 'admin',
-        direccion: 'Dirección Administrativa',
-        telefono: '123456789',
-        role: 'ADMIN',
-        fechaCreacion: new Date(),
-        ultimaActualizacion: new Date()
-      };
-
-      users.push(adminUser);
-      this.setLocalStorage('users', users);
-      console.log('Usuario administrador creado exitosamente');
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'Ha ocurrido un error en el servidor';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      errorMessage = `Error: ${error.status}\nMensaje: ${error.message}`;
     }
-  }
-
-  private getLocalStorage(key: string): any {
-    if (isPlatformBrowser(this.platformId)) {
-      const item = localStorage.getItem(key);
-      return item ? JSON.parse(item) : null;
-    }
-    return null;
-  }
-
-  private setLocalStorage(key: string, value: any): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-  }
-
-  private removeLocalStorage(key: string): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem(key);
-    }
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 
   register(user: Omit<User, 'id' | 'fechaCreacion' | 'ultimaActualizacion' | 'role'>): Observable<User> {
-    const users = this.getLocalStorage('users') || [];
-
-    // Verificar si el email ya existe
-    if (users.some((u: User) => u.email === user.email)) {
-      throw new Error('El email ya está registrado');
-    }
-
-    const newUser: User = {
-      ...user,
-      id: users.length + 1,
-      role: 'CLIENTE',
-      fechaCreacion: new Date(),
-      ultimaActualizacion: new Date()
-    };
-
-    users.push(newUser);
-    this.setLocalStorage('users', users);
-    return of(newUser);
+    const url = `${this.apiUrl}/${this.endpoints.registro}`;
+    return this.http.post<User>(url, { ...user, role: 'CLIENTE' })
+      .pipe(catchError(this.handleError));
   }
 
-  login(email: string, password: string): Observable<User | null> {
-    const users = this.getLocalStorage('users') || [];
-    const user = users.find((u: User) => u.email === email && u.password === password);
-
-    if (user) {
-      this.setLocalStorage('currentUser', user);
-      this.currentUserSubject.next(user);
-    }
-
-    return of(user || null);
+  login(email: string, password: string): Observable<User> {
+    const url = `${this.apiUrl}/${this.endpoints.login}`;
+    return this.http.post<User>(url, { email, password }).pipe(
+      tap(user => {
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          this.currentUserSubject.next(user);
+        }
+      }),
+      catchError(this.handleError)
+    );
   }
 
   logout(): void {
-    this.removeLocalStorage('currentUser');
-    this.currentUserSubject.next(null);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('currentUser');
+      this.currentUserSubject.next(null);
+    }
   }
 
   updateProfile(user: User): Observable<User> {
-    const users = this.getLocalStorage('users') || [];
-    const index = users.findIndex((u: User) => u.id === user.id);
-
-    if (index !== -1) {
-      users[index] = {
-        ...user,
-        ultimaActualizacion: new Date()
-      };
-      this.setLocalStorage('users', users);
-      this.setLocalStorage('currentUser', users[index]);
-      this.currentUserSubject.next(users[index]);
-    }
-
-    return of(users[index]);
+    const url = `${this.apiUrl}/${this.endpoints.actualizar}/${user.id}`;
+    return this.http.put<User>(url, {
+      nombre: user.nombre,
+      apellido: user.apellido,
+      telefono: user.telefono,
+      direccion: user.direccion
+    }).pipe(
+      tap(updatedUser => {
+        if (isPlatformBrowser(this.platformId)) {
+          const currentUser = { ...this.currentUserValue, ...updatedUser };
+          localStorage.setItem('currentUser', JSON.stringify(currentUser));
+          this.currentUserSubject.next(currentUser);
+        }
+      }),
+      catchError(this.handleError)
+    );
   }
 
   resetPassword(email: string): Observable<boolean> {
-    const users = this.getLocalStorage('users') || [];
-    const userIndex = users.findIndex((u: User) => u.email === email);
-
-    if (userIndex !== -1) {
-      users[userIndex].password = '123456';
-      this.setLocalStorage('users', users);
-      return of(true);
-    }
-
-    return of(false);
+    const defaultPassword = '123456';
+    const url = `${this.apiUrl}/${this.endpoints.base}`;
+    
+    return this.http.get<User[]>(url).pipe(
+      mergeMap((users: User[]) => {
+        const user = users.find((u: User) => u.email === email);
+        if (!user) {
+          return of(false);
+        }
+        
+        const resetUrl = `${this.apiUrl}/${this.endpoints.resetPassword}/${user.id}/reset-password`;
+        return this.http.put<void>(resetUrl, { newPassword: defaultPassword }).pipe(
+          map(() => true),
+          catchError(() => of(false))
+        );
+      }),
+      catchError(() => of(false))
+    );
   }
 
   public get currentUserValue(): User | null {
