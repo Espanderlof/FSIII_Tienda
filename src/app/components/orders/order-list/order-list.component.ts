@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { Order } from '../../../models/order';
 import { OrderService } from '../../../services/order.service';
 import { AuthService } from '../../../services/auth.service';
@@ -8,7 +7,7 @@ import { AuthService } from '../../../services/auth.service';
 @Component({
   selector: 'app-order-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
 })
@@ -16,11 +15,12 @@ export class OrderListComponent implements OnInit {
   orders: Order[] = [];
   isAdmin = false;
   expandedOrderId: number | null = null;
+  processingOrderId: number | null = null
 
   constructor(
     private OrderService: OrderService,
     private AuthService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.AuthService.currentUser$.subscribe(user => {
@@ -40,7 +40,25 @@ export class OrderListComponent implements OnInit {
   }
 
   updateStatus(orderId: number, status: 'PENDIENTE' | 'ENTREGADA' | 'CANCELADA'): void {
-    this.OrderService.updateOrderStatus(orderId, status).subscribe();
+    this.processingOrderId = orderId; // Indicar que esta orden está siendo procesada
+
+    this.OrderService.updateOrderStatus(orderId, status).subscribe({
+      next: (updatedOrder) => {
+        const index = this.orders.findIndex(o => o.id === orderId);
+        if (index !== -1) {
+          this.orders[index] = updatedOrder;
+          this.orders = [...this.orders];
+          const action = status === 'ENTREGADA' ? 'entregada' : 'cancelada';
+          alert(`Orden ${action} correctamente`);
+        }
+        this.processingOrderId = null; // Limpiar el indicador
+      },
+      error: (error) => {
+        console.error('Error al actualizar el estado de la orden:', error);
+        alert(`Error al ${status === 'ENTREGADA' ? 'entregar' : 'cancelar'} la orden`);
+        this.processingOrderId = null; // Limpiar el indicador en caso de error
+      }
+    });
   }
 
   toggleDetails(order: Order): void {

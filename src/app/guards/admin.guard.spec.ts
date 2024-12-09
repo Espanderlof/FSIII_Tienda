@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { authGuard } from './auth.guard';
+import { adminGuard } from './admin.guard';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../models/user';
 
-describe('authGuard', () => {
+describe('adminGuard', () => {
   let router: jasmine.SpyObj<Router>;
   let authService: jasmine.SpyObj<AuthService>;
   let userSubject: BehaviorSubject<User | null>;
@@ -26,7 +26,26 @@ describe('authGuard', () => {
     });
   });
 
-  it('deberia retornar true para usuarios autenticados', (done) => {
+  it('deberia retornar true para usuarios admin', (done) => {
+    const mockAdminUser = {
+      id: 1,
+      email: 'admin@test.com',
+      role: 'ADMIN'
+    } as User;
+
+    userSubject.next(mockAdminUser);
+
+    const guardResult = TestBed.runInInjectionContext(() => 
+      adminGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
+    ) as Observable<boolean>;
+
+    guardResult.subscribe(allowed => {
+      expect(allowed).toBe(true);
+      done();
+    });
+  });
+
+  it('deberia redirigir y retornar false para usuarios no admin', (done) => {
     const mockUser = {
       id: 1,
       email: 'user@test.com',
@@ -36,20 +55,7 @@ describe('authGuard', () => {
     userSubject.next(mockUser);
 
     const guardResult = TestBed.runInInjectionContext(() => 
-      authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
-    ) as Observable<boolean>;
-
-    guardResult.subscribe(allowed => {
-      expect(allowed).toBe(true);
-      done();
-    });
-  });
-
-  it('deberia redirigir y retornar false para usuarios no autenticados', (done) => {
-    userSubject.next(null);
-
-    const guardResult = TestBed.runInInjectionContext(() => 
-      authGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
+      adminGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot)
     ) as Observable<boolean>;
 
     guardResult.subscribe(allowed => {
