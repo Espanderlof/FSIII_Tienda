@@ -55,7 +55,7 @@ export class LoginComponent {
             if (user) {
               this.router.navigate(['/products']);
             } else {
-              this.errorMessage = 'Credenciales incorrectas. Si es la primera vez, recuerda que puedes acceder como administrador con usuario: admin y contraseña: admin';
+              this.errorMessage = 'Credenciales incorrectas.';
             }
           },
           error: (error) => {
