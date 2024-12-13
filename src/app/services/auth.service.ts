@@ -25,6 +25,7 @@ export class AuthService {
         this.currentUserSubject.next(JSON.parse(storedUser));
       }
     }
+    console.log('API Base URL:', this.apiUrl);
   }
 
   private handleError(error: HttpErrorResponse) {

@@ -31,6 +31,7 @@ export class OrderService {
         this.getUserOrders(user.id).subscribe(orders => this.ordersSubject.next(orders));
       }
     }
+    console.log('API Base URL:', this.apiUrl);
   }
 
   createOrder(): Observable<Order> {

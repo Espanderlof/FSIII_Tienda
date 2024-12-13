@@ -26,6 +26,7 @@ export class ProductService {
  }
 
  getAllProducts(): Observable<Product[]> {
+  console.log('API Base URL:', this.apiUrl);
    return this.http.get<Product[]>(`${this.apiUrl}/${this.endpoints.base}`)
      .pipe(catchError(this.handleError));
  }
