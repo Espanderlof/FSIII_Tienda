@@ -1,5 +1,13 @@
-/* Importar Bootstrap */
-@import 'bootstrap/scss/bootstrap';
+/* Configura la ruta de los iconos de bootstrap */
+$bootstrap-icons-font-path: "/assets/fonts";
 
-/* Importar Bootstrap Icons desde CDN */
-@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+/* Importa Bootstrap y Bootstrap Icons */
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons';
+
+/* Configura específicamente los iconos */
+@font-face {
+    font-family: "bootstrap-icons";
+    src: url("#{$bootstrap-icons-font-path}/bootstrap-icons.woff2") format("woff2"),
+         url("#{$bootstrap-icons-font-path}/bootstrap-icons.woff") format("woff");
+}
